@@ -1,4 +1,4 @@
-# generation/offsetgrid.py
+# generation.py
 
 from datastructure import MakeCell
 from math import sqrt
@@ -44,16 +44,17 @@ def generate_offsetgrid(nrows, size=0.05):
         ypos += gap_space + 2 * size
 
     for cell in grid:
-        cell.neighbors = list()
+        cell.close = list()
+        cell.far = list()
         big_space = gap_space + 2*size
         small_space = (size + gap_space / 2) * sqrt(2)
 
         for ind, other in enumerate(grid):
             mydist = sqrt((other.x - cell.x)**2 + (other.y - cell.y)**2)
             if abs(big_space - mydist) < 0.0005:
-                cell.neighbors.append(ind)
+                cell.far.append(ind)
             elif abs(small_space - mydist) < 0.0005:
-                cell.neighbors.append(ind)
+                cell.close.append(ind)
 
     return grid
 

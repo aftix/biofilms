@@ -1,0 +1,13 @@
+F = -bv overdamped system
+F = -k(x - x_0) ; x_0 = rad_1 + rad_2 + α
+serialize to output file
+
+Pick a k
+add v's to Cell
+Keep track of pairs in matrix
+Pick a b
+
+from t=0 to t=done by dt:
+  find forces
+  scipy.integrate.ode
+  update
