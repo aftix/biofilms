@@ -1,7 +1,8 @@
 # generation.py
 
-from datastructure import MakeCell
+from datastructure import MakeCell, Cell
 from math import sqrt
+from typing import List
 
 """
 Generate a matrix of cells in a hexagonal pattern on a 1x1 square
@@ -9,7 +10,7 @@ nrows is the number of full spaced rows (~1/2 of full row count)
 size is the radius of the cells
 The matrix is a list of tuples that are (centerx, centery, radius)
 """
-def generate_offsetgrid(nrows, size=0.05):
+def generate_offsetgrid(nrows: int, size: float=0.05) -> List[Cell]:
     # needed_space is space needed for main and side rows
     # it is diameter * (number of major rows) * (number of minor rows)
     needed_space = 2 * size * (2 * nrows - 1)
@@ -23,7 +24,7 @@ def generate_offsetgrid(nrows, size=0.05):
     # From needed_space, this is at least 2*size to accomadate the minor rows
     gap_space = (1 - taken_space) / (nrows - 1)
 
-    grid = list()
+    grid: List[Cell] = list()
 
     # Generate the major rows
     xpos, ypos = size, size
@@ -43,11 +44,15 @@ def generate_offsetgrid(nrows, size=0.05):
         xpos = 2 * size + gap_space / 2
         ypos += gap_space + 2 * size
 
+    big_space = gap_space + 2*size
+    small_space = (size + gap_space / 2) * sqrt(2)
+    spring_relax_close = small_space
+    spring_relax_far = big_space
+
+
     for cell in grid:
         cell.close = list()
         cell.far = list()
-        big_space = gap_space + 2*size
-        small_space = (size + gap_space / 2) * sqrt(2)
 
         for ind, other in enumerate(grid):
             mydist = sqrt((other.x - cell.x)**2 + (other.y - cell.y)**2)

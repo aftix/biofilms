@@ -6,9 +6,6 @@ import generation
 import graph
 import inout
 
-from math import isclose
-from collections import Counter
-
 mygrid = generation.generate_offsetgrid(nrows=10, size=0.008)
 
 inout.save(mygrid, 'test.dat')

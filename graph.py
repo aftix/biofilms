@@ -2,8 +2,10 @@
 
 import matplotlib.pyplot as plt
 import itertools
+from typing import List
+from datastructure import Cell
 
-def plot_cells(cells, name='plot.png'):
+def plot_cells(cells: List[Cell], name: str='plot.png') -> None:
     fig, ax = plt.subplots()
 
     for cell in cells:
