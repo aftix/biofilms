@@ -2,7 +2,7 @@
 
 from collections import Counter
 from math import isclose
-from typing import List, TypeVar
+from typing import List, Dict, Any, Union
 
 # Cell_t = TypeVar('Cell', bound='Cell')
 class Cell(object):
@@ -39,12 +39,9 @@ def MakeCell(\
 ) -> Cell:
     return Cell(x, y, rad, close, far)
 
-# Spring constant
-spring_k: float = 1
-# Relaxed length for springs between close neighbors
-spring_relax_close: float = 0.04
-# Relaxed length for spring between far neighbors
-spring_relax_far: float = 0.04
-
-# Coeffecient of damping
-damping: float = 10
+# Program constants
+sim_params: Dict[str, Union[float, int]] = dict()
+sim_params['spring_k'] = 1
+sim_params['spring_relax_close'] = 0.04
+sim_params['spring_relax_far'] = 0.04
+sim_params['damping'] = 10
