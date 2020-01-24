@@ -22,7 +22,9 @@ class Cell(object):
     def __str__(self) -> str:
         return str(self.__dict__)
 
-    def __eq__(self, rhs: 'Cell') -> bool:
+    def __eq__(self, rhs: object) -> bool:
+        if not isinstance(rhs, Cell):
+            return NotImplemented
         return isclose(self.x, rhs.x) and isclose(self.y, rhs.y) \
                 and isclose(self.rad, rhs.rad) \
                 and Counter(self.close) == Counter(rhs.close) \

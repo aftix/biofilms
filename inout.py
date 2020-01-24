@@ -2,7 +2,7 @@
 
 import jsonpickle
 import _io
-from typing import List
+from typing import List, Any
 from datastructure import Cell
 
 def serialize_cell(cell: Cell, ofile: _io.TextIOWrapper) -> None:
@@ -15,7 +15,7 @@ def serialize_cellmatrix(grid: List[Cell], ofile: _io.TextIOWrapper) -> None:
     for cell in grid:
         serialize_cell(cell, ofile)
 
-def deserialize_cell(ifile: _io.TextIOWrapper) -> Cell:
+def deserialize_cell(ifile: _io.TextIOWrapper) -> Any:
     return jsonpickle.loads(ifile.readline())
 
 def deserialize_cellmatrix(ifile: _io.TextIOWrapper) -> List[Cell]:
