@@ -5,6 +5,7 @@
 import generation
 import graph
 import inout
+import os
 from datastructure import sim_params
 
 mygrid = generation.generate_offsetgrid(nrows=10, size=0.008)
@@ -20,3 +21,4 @@ assert(len(newgrid) == len(mygrid))
 for i in range(len(mygrid)):
     assert(newgrid[i] == mygrid[i])
 
+os.unlink('test.dat')

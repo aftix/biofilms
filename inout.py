@@ -2,8 +2,8 @@
 
 import jsonpickle
 import _io
-from typing import List, Any
-from datastructure import Cell, sim_params
+from typing import List, Any, Tuple
+from datastructure import Cell, Params
 
 def serialize_cell(cell: Cell, ofile: _io.TextIOWrapper) -> None:
     ofile.write(jsonpickle.dumps(cell))
@@ -22,18 +22,14 @@ def deserialize_cellmatrix(ifile: _io.TextIOWrapper) -> List[Cell]:
     numcells = int(ifile.readline())
     return [deserialize_cell(ifile) for i in range(numcells)]
 
-def save(grid: List[Cell], loc: str) -> None:
+def save(params: Params, grid: List[Cell], loc: str) -> None:
     with open(loc, "w") as f:
-        global sim_params
-        f.write(jsonpickle.dumps(sim_params))
+        f.write(jsonpickle.dumps(params))
         f.write('\n')
         serialize_cellmatrix(grid, f)
 
-def load(loc: str) -> List[Cell]:
+def load(loc: str) -> Tuple[Params, List[Cell]]:
     with open(loc, "r") as f:
-        global sim_params
         newparams = jsonpickle.loads(f.readline())
-        for key, item in newparams.items():
-            sim_params[key] = item
         grid = deserialize_cellmatrix(f)
-    return grid
+    return newparams, grid
