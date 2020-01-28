@@ -12,7 +12,7 @@ size is the radius of the cells
 The matrix is a list of tuples that are (centerx, centery, radius)
 """
 def generate_offsetgrid(param: Params, nrows: int, size: float=0.05) \
-        -> Tuple[Params, List[Cell]]:
+        -> List[Cell]:
     # needed_space is space needed for main and side rows
     # it is diameter * (number of major rows) * (number of minor rows)
     needed_space: float = 2 * size * (2 * nrows - 1)
@@ -65,6 +65,6 @@ def generate_offsetgrid(param: Params, nrows: int, size: float=0.05) \
             elif isclose(small_space, mydist):
                 cell.close.append(ind)
 
-    return param, grid
+    return grid
 
 
