@@ -13,6 +13,7 @@ def BeginParams() -> Params:
     sim_params['spring_relax_close'] = 0.04
     sim_params['spring_relax_far'] = 0.04
     sim_params['damping'] = 10
+    sim_params['del_t'] = 10
     return sim_params
 
 # Cell object

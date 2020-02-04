@@ -11,3 +11,9 @@ from t=0 to t=done by dt:
   find forces
   scipy.integrate.ode
   update
+
+Pull a corner
+run it through the time stepper
+integrate between t and t + delT
+
+Change from force to stress

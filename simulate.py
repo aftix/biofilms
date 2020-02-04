@@ -29,9 +29,44 @@ def FindForces(params: Params, grid: List[Cell]) -> List[ForceLink]:
             if force < 1e-15:
                 force = 0
             newlink = MakeForceLink(parties=(i,j), val=force, relax=rel)
-            print(newlink)
             forces.append(newlink)
     return forces
+
+"""
+Forcing function for ODE solver
+y's are interlaced pos as x y x y x y
+"""
+def StepForce(t, y, grid, params, sols):
+    derivs = numpy.zeros(len(y))
+    for i in range(len(grid)):
+        for j in range(i, len(grid)):
+            dist: float = numpy.linalg.norm(y[i*2:i*2+2] - y[j*2:j*2+2])
+            if j in grid[i].close:
+                force: float = params['spring_k'] * (
+                            params['spring_relax_close'] - dist
+                )
+                rel: float = params['spring_relax_close']
+            elif j in grid[i].far:
+                force = params['spring_k'] * (
+                            params['spring_relax_far'] - dist
+                )
+                rel = params['spring_relax_far']
+            else:
+                continue
+
+            if force < 1e-15:
+                force = 0
+            AtoB = y[j*2:j*2+2] - y[i*2:i*2+2]
+            unitDist = AtoB / dist
+            derivs[i*2:i*2+2] += (force * unitDist)
+            derivs[j*2:j*2+2] -= (force * unitDist)
+    newgrid = grid
+    for i, cell in enumerate(newgrid):
+        cell.pos = y[i*2:i*2+2]
+        cell.force = derivs[i*2:i*2 + 2]
+    sols.append([newgrid])
+    derivs /= -params['damping']
+    return derivs
 
 """
 Update the force values on the cells themselves
