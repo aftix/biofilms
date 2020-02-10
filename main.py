@@ -33,23 +33,30 @@ with open(loc, 'r') as fi:
 
 try:
     shutil.rmtree(folder)
+except FileNotFoundError:
+    pass
 finally:
     os.mkdir(folder)
 
 mygrid[0].pos = numpy.array([0, 0])
 
+graph.plot_cells(mygrid)
+
 initialpos = numpy.array([])
 for cell in mygrid:
     initialpos = numpy.append(initialpos, cell.pos)
 
-solutions: List[List[Cell]] = list([mygrid])
 solution = scipy.integrate.solve_ivp(
     simulate.StepForce,
     (0, params['del_t']),
     initialpos,
-    args=(mygrid, params, solutions)
+    args=(mygrid, params)
 )
 
-for ind in range(len(solutions)):
-    with open(folder + f'{ind:05d}', 'w') as f:
-        inout.serialize_cellmatrix(solutions[ind], f)
+for ind in range(len(solution.t)):
+    newgrid = mygrid
+    for i in range(len(mygrid)):
+        newgrid[i].pos = solution.y[2*i:2*i+2,ind]
+    with open(folder + f'{ind:05d}.dat', 'w') as out:
+        inout.serialize_cellmatrix(newgrid, out)
+

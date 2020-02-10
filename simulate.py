@@ -26,6 +26,7 @@ def FindForces(params: Params, grid: List[Cell]) -> List[ForceLink]:
             else:
                 continue
 
+            force = abs(force)
             if force < 1e-15:
                 force = 0
             newlink = MakeForceLink(parties=(i,j), val=force, relax=rel)
@@ -36,7 +37,7 @@ def FindForces(params: Params, grid: List[Cell]) -> List[ForceLink]:
 Forcing function for ODE solver
 y's are interlaced pos as x y x y x y
 """
-def StepForce(t, y, grid, params, sols):
+def StepForce(t, y, grid, params):
     derivs = numpy.zeros(len(y))
     for i in range(len(grid)):
         for j in range(i, len(grid)):
@@ -54,17 +55,13 @@ def StepForce(t, y, grid, params, sols):
             else:
                 continue
 
+            force = abs(force)
             if force < 1e-15:
                 force = 0
             AtoB = y[j*2:j*2+2] - y[i*2:i*2+2]
             unitDist = AtoB / dist
             derivs[i*2:i*2+2] += (force * unitDist)
             derivs[j*2:j*2+2] -= (force * unitDist)
-    newgrid = grid
-    for i, cell in enumerate(newgrid):
-        cell.pos = y[i*2:i*2+2]
-        cell.force = derivs[i*2:i*2 + 2]
-    sols.append([newgrid])
     derivs /= -params['damping']
     return derivs
 
