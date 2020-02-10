@@ -44,25 +44,25 @@ def StepForce(t, y, grid, params):
             dist: float = numpy.linalg.norm(y[i*2:i*2+2] - y[j*2:j*2+2])
             if j in grid[i].close:
                 force: float = params['spring_k'] * (
-                            params['spring_relax_close'] - dist
+                            dist - params['spring_relax_close']
                 )
                 rel: float = params['spring_relax_close']
             elif j in grid[i].far:
                 force = params['spring_k'] * (
-                            params['spring_relax_far'] - dist
+                            dist - params['spring_relax_far']
                 )
                 rel = params['spring_relax_far']
             else:
                 continue
 
-            force = abs(force)
-            if force < 1e-15:
+            if abs(force) < 1e-15:
                 force = 0
             AtoB = y[j*2:j*2+2] - y[i*2:i*2+2]
             unitDist = AtoB / dist
             derivs[i*2:i*2+2] += (force * unitDist)
             derivs[j*2:j*2+2] -= (force * unitDist)
-    derivs /= -params['damping']
+    derivs /= params['damping']
+    derivs[0:2] = numpy.zeros(2)
     return derivs
 
 """

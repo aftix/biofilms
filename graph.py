@@ -13,5 +13,7 @@ def plot_cells(cells: List[Cell], name: str='plot.png') -> None:
         for n in itertools.chain(cell.close, cell.far):
             ax.plot([cell.pos[0], cells[n].pos[0]], [cell.pos[1], cells[n].pos[1]], 'k', linewidth=1)
 
+    ax.set_xlim([-0.1, 1.1])
+    ax.set_ylim([-0.1, 1.1])
     fig.savefig(name)
     plt.close(fig)
