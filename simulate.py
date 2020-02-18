@@ -4,6 +4,7 @@ from datastructure import ForceLink, Cell, MakeForceLink, Params
 from typing import List, Tuple
 from collections import Counter
 import numpy
+from math import isclose
 
 """
 Find Forces between cells and return as a matrix
@@ -61,8 +62,10 @@ def StepForce(t, y, grid, params):
             unitDist = AtoB / dist
             derivs[i*2:i*2+2] += (force * unitDist)
             derivs[j*2:j*2+2] -= (force * unitDist)
+        # Pin edges
+        if grid[i].fixed:
+            derivs[i*2:i*2+2] = numpy.zeros(2)
     derivs /= params['damping']
-    derivs[0:2] = numpy.zeros(2)
     return derivs
 
 """

@@ -35,6 +35,10 @@ def generate_offsetgrid(param: Params, nrows: int, size: float=0.05) \
     for i in range(nrows):
         for j in range(nrows):
             grid.append(MakeCell(xpos, ypos, size))
+            if j == nrows - 1 or i == nrows - 1:
+                grid[-1].fixed = True
+            elif i == 0 and j == 0:
+                grid[-1].fixed = True
             xpos += iter_space
         xpos = size
         ypos += iter_space

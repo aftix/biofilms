@@ -30,6 +30,7 @@ class Cell(object):
         self.close = close
         self.far = far
         self.force = numpy.zeros(2)
+        self.fixed = False
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -40,7 +41,8 @@ class Cell(object):
         return isclose(self.pos[0], rhs.pos[0]) and isclose(self.pos[1], rhs.pos[1]) \
                 and isclose(self.rad, rhs.rad) \
                 and Counter(self.close) == Counter(rhs.close) \
-                and Counter(self.far) == Counter(rhs.far)
+                and Counter(self.far) == Counter(rhs.far) \
+                and self.fixed == rhs.fixed
 
 def MakeCell(\
         x: float=0,\
