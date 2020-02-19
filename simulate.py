@@ -1,38 +1,10 @@
 # simulate.py
 
 from datastructure import ForceLink, Cell, MakeForceLink, Params
-from typing import List, Tuple
+from typing import List, Tuple, Union, Dict
 from collections import Counter
 import numpy
 from math import isclose
-
-"""
-Find Forces between cells and return as a matrix
-"""
-def FindForces(params: Params, grid: List[Cell]) -> List[ForceLink]:
-    forces: List[ForceLink] = list()
-    for i in range(len(grid)):
-        for j in range(i, len(grid)):
-            dist: float = numpy.linalg.norm(grid[i].pos - grid[j].pos)
-            if j in grid[i].close:
-                force: float = params['spring_k'] * (
-                            params['spring_relax_close'] - dist
-                )
-                rel: float = params['spring_relax_close']
-            elif j in grid[i].far:
-                force = params['spring_k'] * (
-                            params['spring_relax_far'] - dist
-                )
-                rel = params['spring_relax_far']
-            else:
-                continue
-
-            force = abs(force)
-            if force < 1e-15:
-                force = 0
-            newlink = MakeForceLink(parties=(i,j), val=force, relax=rel)
-            forces.append(newlink)
-    return forces
 
 """
 Forcing function for ODE solver
@@ -47,12 +19,10 @@ def StepForce(t, y, grid, params):
                 force: float = params['spring_k'] * (
                             dist - params['spring_relax_close']
                 )
-                rel: float = params['spring_relax_close']
             elif j in grid[i].far:
                 force = params['spring_k'] * (
                             dist - params['spring_relax_far']
                 )
-                rel = params['spring_relax_far']
             else:
                 continue
 
@@ -62,22 +32,40 @@ def StepForce(t, y, grid, params):
             unitDist = AtoB / dist
             derivs[i*2:i*2+2] += (force * unitDist)
             derivs[j*2:j*2+2] -= (force * unitDist)
-        # Pin edges
         if grid[i].fixed:
             derivs[i*2:i*2+2] = numpy.zeros(2)
     derivs /= params['damping']
     return derivs
 
 """
-Update the force values on the cells themselves
+Given a grid position, find bulk stress of each cell
 """
-def UpdateCellForces(params: Params, grid: List[Cell], forces: List[ForceLink]) -> None:
-    for cell in grid:
-        cell.force = numpy.zeros(2)
+def BulkStress(grid: List[Cell], params: Dict[str, Union[float, int]]) -> Tuple[float, float]:
+    maxtension: float = 0
+    maxcompression: float = 0
+    for i in range(len(grid)):
+        grid[i].stress = 0
+    for i in range(len(grid)):
+        for j in range(i, len(grid)):
+            dist: float = numpy.linalg.norm(grid[i].pos - grid[j].pos)
+            if j in grid[i].close:
+                force: float = params['spring_k'] * (
+                            dist - params['spring_relax_close']
+                )
+            elif j in grid[i].far:
+                force = params['spring_k'] * (
+                        dist - params['spring_relax_far']
+                )
+            else:
+                continue
 
-    for f in forces:
-        A, B = f.parties
-        AtoB = (grid[B].pos - grid[A].pos)
-        unitDist = AtoB / numpy.linalg.norm(AtoB)
-        grid[A].force = grid[A].force + f.val * unitDist
-        grid[B].force = grid[B].force - f.val * unitDist
+            if abs(force) < 1e-15:
+                continue
+            grid[i].stress += force
+            grid[j].stress += force
+        if grid[i].stress > maxtension:
+            maxtension = grid[i].stress
+        elif grid[i].stress < maxcompression:
+            maxcompression = grid[i].stress
+    return maxtension, maxcompression
+

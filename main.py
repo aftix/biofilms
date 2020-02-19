@@ -14,6 +14,7 @@ from datastructure import Params, Cell
 import shutil
 import numpy
 import scipy.integrate
+from math import isclose
 
 if len(sys.argv) < 2:
     loc: str = 'grid.dat'
@@ -38,10 +39,6 @@ except FileNotFoundError:
 finally:
     os.mkdir(folder)
 
-mygrid[0].pos = numpy.array([0, 0])
-
-graph.plot_cells(mygrid)
-
 initialpos = numpy.array([])
 for cell in mygrid:
     initialpos = numpy.append(initialpos, cell.pos)
@@ -53,10 +50,24 @@ solution = scipy.integrate.solve_ivp(
     args=(mygrid, params)
 )
 
+maxstress: float = 0
+
 for ind in range(len(solution.t)):
     newgrid = mygrid
     for i in range(len(mygrid)):
         newgrid[i].pos = solution.y[2*i:2*i+2,ind]
+    tension, compression = simulate.BulkStress(newgrid, params)
+    if tension > maxstress:
+        maxstress = tension
+    if -compression > maxstress:
+        maxstress = -compression
     with open(folder + f'{ind:05d}.dat', 'w') as out:
         inout.serialize_cellmatrix(newgrid, out)
+
+if isclose(maxstress, 0):
+    maxstress = 1
+
+with open(folder + 'globals', 'w') as out:
+    out.write(str(maxstress))
+    out.write('\n')
 

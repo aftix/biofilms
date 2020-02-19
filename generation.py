@@ -11,7 +11,7 @@ nrows is the number of full spaced rows (~1/2 of full row count)
 size is the radius of the cells
 The matrix is a list of tuples that are (centerx, centery, radius)
 """
-def generate_offsetgrid(param: Params, nrows: int, size: float=0.05) \
+def generate_offsetgrid(param: Params, nrows: int, size: float=0.05, majhook=None, minhook=None) \
         -> List[Cell]:
     # needed_space is space needed for main and side rows
     # it is diameter * (number of major rows) * (number of minor rows)
@@ -35,10 +35,8 @@ def generate_offsetgrid(param: Params, nrows: int, size: float=0.05) \
     for i in range(nrows):
         for j in range(nrows):
             grid.append(MakeCell(xpos, ypos, size))
-            if j == nrows - 1 or i == nrows - 1:
-                grid[-1].fixed = True
-            elif i == 0 and j == 0:
-                grid[-1].fixed = True
+            if majhook is not None:
+                majhook(i, j, nrows, grid)
             xpos += iter_space
         xpos = size
         ypos += iter_space
@@ -48,6 +46,8 @@ def generate_offsetgrid(param: Params, nrows: int, size: float=0.05) \
     for i in range(nrows - 1):
         for j in range(nrows - 1):
             grid.append(MakeCell(xpos, ypos, size))
+            if minhook is not None:
+                minhook(i, j, nrows, grid)
             xpos += iter_space
         xpos = 2 * size + gap_space / 2
         ypos += iter_space

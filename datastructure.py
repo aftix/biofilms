@@ -31,6 +31,7 @@ class Cell(object):
         self.far = far
         self.force = numpy.zeros(2)
         self.fixed = False
+        self.stress = float(0)
 
     def __str__(self) -> str:
         return str(self.__dict__)
