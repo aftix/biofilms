@@ -3,24 +3,30 @@
 import sys
 import inout
 import generation
-from datastructure import BeginParams
+from datastructure import BeginParams, Cell
 import jsonpickle
 import numpy
+from typing import List
 
 if len(sys.argv) < 2:
     name: str = 'grid.dat'
 else:
     name = sys.argv[1]
 
-def fixedges(i, j, nrows, grid):
-#    if i == nrows - 1 or j == nrows - 1:
-#        grid[-1].fixed = True
-    if i == 0 and j == 0:
-        grid[-1].fixed = True
+def PullOut(c: Cell) -> None:
+    if c.pos[0] < 0.5:
+        c.pos[0] = -0.05
+    else:
+        c.pos[0] = 1.05
+
+def PullEdge(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
+    if i == nrows / 2:
+        if j == 0 or j == nrows - 1:
+            grid[-1].update = True
+            grid[-1].updateFunc = PullOut
 
 params = BeginParams()
-mygrid = generation.generate_offsetgrid(params, nrows=10, size=0.008, majhook=fixedges)
-mygrid[0].pos = numpy.array([-0.08, -0.08])
+mygrid = generation.generate_offsetgrid(params, nrows=10, size=0.008, majhook=PullEdge)
 
 with open(name, "w") as f:
     global sim_params

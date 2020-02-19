@@ -2,7 +2,7 @@
 
 from collections import Counter
 from math import isclose
-from typing import List, Dict, Any, Union, Tuple
+from typing import List, Dict, Any, Union, Tuple, Callable
 import numpy
 
 # Program constants
@@ -12,9 +12,12 @@ def BeginParams() -> Params:
     sim_params['spring_k'] = 1
     sim_params['spring_relax_close'] = 0.04
     sim_params['spring_relax_far'] = 0.04
-    sim_params['damping'] = 10
-    sim_params['del_t'] = 10
+    sim_params['damping'] = 1
+    sim_params['del_t'] = 20
     return sim_params
+
+def _CellUpdate() -> None:
+    pass
 
 # Cell object
 class Cell(object):
@@ -32,6 +35,8 @@ class Cell(object):
         self.force = numpy.zeros(2)
         self.fixed = False
         self.stress = float(0)
+        self.update = False
+        self.updateFunc: Callable = _CellUpdate
 
     def __str__(self) -> str:
         return str(self.__dict__)

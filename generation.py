@@ -69,6 +69,10 @@ def generate_offsetgrid(param: Params, nrows: int, size: float=0.05, majhook=Non
             elif isclose(small_space, mydist):
                 cell.close.append(ind)
 
+    for cell in grid:
+        if cell.update:
+            cell.updateFunc(cell)
+
     return grid
 
 
