@@ -35,3 +35,11 @@ def plot_cells(cells: List[Cell], name: str='plot.png', maxstress: float=1) -> N
     ax.set_ylim([-0.1, 1.1])
     fig.savefig(name)
     plt.close(fig)
+
+def plot_avgstress(avgs: List[float], times: List[float], name: str='avgstress.png') -> None:
+    fig, ax = plt.subplots()
+    ax.plot(times, avgs, color='k', marker='.', label='Average Stress', linestyle='None')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Average Stress')
+    fig.savefig(name)
+    plt.close(fig)

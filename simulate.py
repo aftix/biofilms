@@ -40,9 +40,10 @@ def StepForce(t, y, grid, params):
 """
 Given a grid position, find bulk stress of each cell
 """
-def BulkStress(grid: List[Cell], params: Dict[str, Union[float, int]]) -> Tuple[float, float]:
+def BulkStress(grid: List[Cell], params: Dict[str, Union[float, int]]) -> Tuple[float, float, float]:
     maxtension: float = 0
     maxcompression: float = 0
+    avgstress: float = 0
     for i in range(len(grid)):
         grid[i].stress = 0
     for i in range(len(grid)):
@@ -67,5 +68,7 @@ def BulkStress(grid: List[Cell], params: Dict[str, Union[float, int]]) -> Tuple[
             maxtension = grid[i].stress
         elif grid[i].stress < maxcompression:
             maxcompression = grid[i].stress
-    return maxtension, maxcompression
+        avgstress += grid[i].stress
+    avgstress /= len(grid)
+    return maxtension, maxcompression, avgstress
 

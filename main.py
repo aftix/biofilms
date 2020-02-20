@@ -52,11 +52,14 @@ solution = scipy.integrate.solve_ivp(
 
 maxstress: float = 0
 
+avgstress: List[float] = list()
+
 for ind in range(len(solution.t)):
     newgrid = mygrid
     for i in range(len(mygrid)):
         newgrid[i].pos = solution.y[2*i:2*i+2,ind]
-    tension, compression = simulate.BulkStress(newgrid, params)
+    tension, compression, avg = simulate.BulkStress(newgrid, params)
+    avgstress.append(avg)
     if tension > maxstress:
         maxstress = tension
     if -compression > maxstress:
@@ -71,3 +74,4 @@ with open(folder + 'globals', 'w') as out:
     out.write(str(maxstress))
     out.write('\n')
 
+graph.plot_avgstress(avgstress, solution.t, name=folder + 'avgstress.png')
