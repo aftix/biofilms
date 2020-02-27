@@ -4,9 +4,10 @@ from collections import Counter
 from math import isclose
 from typing import List, Dict, Any, Union, Tuple, Callable
 import numpy
+from scipy.constants import pi
 
 # Program constants
-Params = Dict[str, Union[float, int]]
+Params = Dict[str, Union[float, int, str]]
 def BeginParams() -> Params:
     sim_params: Params = dict()
     sim_params['spring_k'] = 1
@@ -14,6 +15,8 @@ def BeginParams() -> Params:
     sim_params['spring_relax_far'] = 0.04
     sim_params['damping'] = 1
     sim_params['del_t'] = 20
+    sim_params['sineamp'] = 1
+    sim_params['sineomega'] = pi
     return sim_params
 
 def _CellUpdate() -> None:
@@ -35,8 +38,11 @@ class Cell(object):
         self.force = numpy.zeros(2)
         self.fixed = False
         self.stress = float(0)
+        self.tensorstress = numpy.zeros((2,2))
         self.update = False
         self.updateFunc: Callable = _CellUpdate
+        self.force = False
+        self.forceFunc: Callable = _CellUpdate
 
     def __str__(self) -> str:
         return str(self.__dict__)

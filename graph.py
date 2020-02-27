@@ -25,10 +25,10 @@ def plot_cells(cells: List[Cell], name: str='plot.png', maxstress: float=1) -> N
             circ.set_edgecolor('g')
         if isclose(cell.stress, 0):
             circ.set_facecolor('white')
-        elif cell.stress > 0:
-            circ.set_facecolor(col.hsv_to_rgb([0, cell.stress/maxstress, 1]))
+        elif cell.stress < 0:
+            circ.set_facecolor(col.hsv_to_rgb([0, -cell.stress/maxstress, 1]))
         else:
-            circ.set_facecolor(col.hsv_to_rgb([0.677778, -cell.stress/maxstress, 1]))
+            circ.set_facecolor(col.hsv_to_rgb([0.677778, cell.stress/maxstress, 1]))
         ax.add_artist(circ)
 
     ax.set_xlim([-0.1, 1.1])

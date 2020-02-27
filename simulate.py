@@ -13,8 +13,10 @@ y's are interlaced pos as x y x y x y
 def StepForce(t, y, grid, params):
     derivs = numpy.zeros(len(y))
     for i in range(len(grid)):
-        for j in range(i, len(grid)):
-            dist: float = numpy.linalg.norm(y[i*2:i*2+2] - y[j*2:j*2+2])
+        for j in range(i+1, len(grid)):
+            AtoB = y[j*2:j*2+2] - y[i*2:i*2+2]
+            dist: float = numpy.linalg.norm(AtoB)
+
             if j in grid[i].close:
                 force: float = params['spring_k'] * (
                             dist - params['spring_relax_close']
@@ -28,47 +30,72 @@ def StepForce(t, y, grid, params):
 
             if abs(force) < 1e-15:
                 force = 0
-            AtoB = y[j*2:j*2+2] - y[i*2:i*2+2]
+
             unitDist = AtoB / dist
             derivs[i*2:i*2+2] += (force * unitDist)
             derivs[j*2:j*2+2] -= (force * unitDist)
         if grid[i].fixed:
             derivs[i*2:i*2+2] = numpy.zeros(2)
+        elif grid[i].force:
+            derivs[i*2:i*2+2] += grid[i].forceFunc(t, y[i*2:i*2+2], grid, params)
     derivs /= params['damping']
     return derivs
 
 """
 Given a grid position, find bulk stress of each cell
 """
-def BulkStress(grid: List[Cell], params: Dict[str, Union[float, int]]) -> Tuple[float, float, float]:
-    maxtension: float = 0
+def GetStress(grid: List[Cell], params: Dict[str, Union[float, int, str]]) -> Tuple[float, float, float]:
     maxcompression: float = 0
+    maxtension: float = 0
     avgstress: float = 0
+
+    for i, cell in enumerate(grid):
+        cell.stress = 0
+        cell.tensorstress = numpy.zeros((2,2))
+
     for i in range(len(grid)):
-        grid[i].stress = 0
-    for i in range(len(grid)):
-        for j in range(i, len(grid)):
-            dist: float = numpy.linalg.norm(grid[i].pos - grid[j].pos)
+        for j in range(i+1, len(grid)):
+            direc = grid[i].pos - grid[j].pos
+            dist: float = numpy.linalg.norm(direc)
+
             if j in grid[i].close:
-                force: float = params['spring_k'] * (
-                            dist - params['spring_relax_close']
+                force: float = float(params['spring_k']) * (
+                            dist - float(params['spring_relax_close'])
                 )
             elif j in grid[i].far:
-                force = params['spring_k'] * (
-                        dist - params['spring_relax_far']
+                force = float(params['spring_k']) * (
+                        dist - float(params['spring_relax_far'])
                 )
             else:
                 continue
 
+
             if abs(force) < 1e-15:
                 continue
-            grid[i].stress += force
-            grid[j].stress += force
-        if grid[i].stress > maxtension:
-            maxtension = grid[i].stress
-        elif grid[i].stress < maxcompression:
+
+            # vec F = |F| rhat
+            rhat = direc / dist
+
+            # S_i,ab = -0.5 sum(j, (r_i,a - r_j,a) * F_ij,b)
+            # r_i,a - r_j,a = direc_a
+            newstress = numpy.array([rhat * force, rhat * force])
+            newstress *= numpy.transpose(numpy.array([direc, direc]))
+
+            # neighbor is the same (F changes direction as well as direc)
+            grid[i].tensorstress += newstress
+            grid[j].tensorstress += newstress
+        # At this point, stress is done calculating
+        grid[i].tensorstress *= -0.5
+        # bulk stress is the trace of diagonalized tensor stress
+        # AKA sum of eigenvalues
+        # The sum of eigenvalues IS THE TRACE!!!!
+        grid[i].stress = grid[i].tensorstress[0,0] + grid[i].tensorstress[1,1]
+
+        if grid[i].stress > maxcompression:
             maxcompression = grid[i].stress
+        elif grid[i].stress < maxtension:
+            maxtension = grid[i].stress
         avgstress += grid[i].stress
     avgstress /= len(grid)
-    return maxtension, maxcompression, avgstress
+    return maxcompression, maxtension, avgstress
 

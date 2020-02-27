@@ -14,6 +14,7 @@ from datastructure import Params, Cell
 import shutil
 import numpy
 import scipy.integrate
+from scipy.constants import pi
 from math import isclose
 
 if len(sys.argv) < 2:
@@ -43,6 +44,7 @@ initialpos = numpy.array([])
 for cell in mygrid:
     initialpos = numpy.append(initialpos, cell.pos)
 
+
 solution = scipy.integrate.solve_ivp(
     simulate.StepForce,
     (0, params['del_t']),
@@ -58,12 +60,12 @@ for ind in range(len(solution.t)):
     newgrid = mygrid
     for i in range(len(mygrid)):
         newgrid[i].pos = solution.y[2*i:2*i+2,ind]
-    tension, compression, avg = simulate.BulkStress(newgrid, params)
+    compression, tension, avg = simulate.GetStress(newgrid, params)
     avgstress.append(avg)
-    if tension > maxstress:
-        maxstress = tension
-    if -compression > maxstress:
-        maxstress = -compression
+    if compression > maxstress:
+        maxstress = compression
+    if -tension > maxstress:
+        maxstress = -tension
     with open(folder + f'{ind:05d}.dat', 'w') as out:
         inout.serialize_cellmatrix(newgrid, out)
 

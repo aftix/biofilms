@@ -2,7 +2,7 @@
 
 from datastructure import MakeCell, Cell, Params
 from math import isclose
-from typing import List, Tuple
+from typing import List, Tuple, Union, Dict
 import numpy
 
 """
@@ -11,7 +11,7 @@ nrows is the number of full spaced rows (~1/2 of full row count)
 size is the radius of the cells
 The matrix is a list of tuples that are (centerx, centery, radius)
 """
-def generate_offsetgrid(param: Params, nrows: int, size: float=0.05, majhook=None, minhook=None) \
+def generate_offsetgrid(param: Dict[str, Union[str, int, float]], nrows: int, size: float=0.05, majhook=None, minhook=None) \
         -> List[Cell]:
     # needed_space is space needed for main and side rows
     # it is diameter * (number of major rows) * (number of minor rows)
