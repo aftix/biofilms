@@ -36,7 +36,7 @@ def StepForce(t, y, grid, params):
             derivs[j*2:j*2+2] -= (force * unitDist)
         if grid[i].fixed:
             derivs[i*2:i*2+2] = numpy.zeros(2)
-        elif grid[i].force:
+        if grid[i].force:
             derivs[i*2:i*2+2] += grid[i].forceFunc(t, y[i*2:i*2+2], grid, params)
     derivs /= params['damping']
     return derivs

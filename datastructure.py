@@ -17,6 +17,7 @@ def BeginParams() -> Params:
     sim_params['del_t'] = 20
     sim_params['sineamp'] = 1
     sim_params['sineomega'] = pi
+    sim_params['extforce_x'] = 0.05
     return sim_params
 
 def _CellUpdate() -> None:

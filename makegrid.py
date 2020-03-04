@@ -14,28 +14,13 @@ if len(sys.argv) < 2:
 else:
     name = sys.argv[1]
 
-def SqueezeFunc(c: Cell) -> None:
-    pass
-    if c.pos[0] < 0.5:
-        c.pos[0] = 0.5 - c.rad - 0.001
-    else:
-        c.pos[0] = 0.5 + c.rad + 0.001
-
-def Squeeze(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
-    if j == (nrows / 2) - 1 or j == nrows / 2:
-        grid[-1].update = True
-        grid[-1].updateFunc = SqueezeFunc
-
-def Pull(c: Cell) -> None:
-    c.pos = numpy.array([-0.08, -0.08])
-
 def Fix(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
-    if j == 0 and i == 0:
+    if j == 0:
         grid[-1].force = True
-        grid[-1].forceFunc = forces.LowerLeftSine
-    elif j == nrows - 1 or i == nrows - 1:
+        grid[-1].forceFunc = forces.ConstRightForce
         grid[-1].fixed = True
-
+    elif j == nrows - 1:
+        grid[-1].fixed = True
 
 params = BeginParams()
 mygrid = generation.generate_offsetgrid(params, nrows=10, size=0.008, majhook=Fix)
