@@ -20,6 +20,11 @@ def Fix(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
         grid[-1].forceFunc = forces.StopGoConst
     elif j == nrows - 1:
         grid[-1].fixed = True
+        grid[-1].force = True
+        grid[-1].forceFunc = forces.LinRestraint
+    else:
+        grid[-1].force = True
+        grid[-1].forceFunc = forces.LinRestraint
 
 params = BeginParams()
 mygrid = generation.generate_offsetgrid(params, nrows=10, size=0.008, majhook=Fix)

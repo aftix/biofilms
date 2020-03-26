@@ -18,6 +18,12 @@ def BeginParams() -> Params:
     sim_params['sineamp'] = 1
     sim_params['sineomega'] = pi
     sim_params['extforce_x'] = 0.05
+    sim_params['lj_epsilon'] = 0.05
+    sim_params['lj_sigma'] = 0.065
+    sim_params['restraint_k'] = 10
+    sim_params['repl_dist'] = 0.012
+    sim_params['repl_min'] = 0.01
+    sim_params['repl_epsilon'] = 5
     return sim_params
 
 def _CellUpdate() -> None:

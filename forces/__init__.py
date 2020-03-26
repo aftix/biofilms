@@ -3,3 +3,4 @@
 from forces.sinusoidal import *
 from forces.constant import *
 from forces.step import *
+from forces.restraint import *

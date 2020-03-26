@@ -12,6 +12,10 @@ y's are interlaced pos as x y x y x y
 """
 def StepForce(t, y, grid, params):
     derivs = numpy.zeros(len(y))
+
+    lj_A: float = params['repl_epsilon'] * numpy.power(params['repl_min'], 12)
+    lj_B: float = params['repl_epsilon'] * 2 * numpy.power(params['repl_min'], 6)
+
     for i in range(len(grid)):
         for j in range(i+1, len(grid)):
             AtoB = y[j*2:j*2+2] - y[i*2:i*2+2]
@@ -31,9 +35,16 @@ def StepForce(t, y, grid, params):
             if abs(force) < 1e-15:
                 force = 0
 
+            # LJ repulsion
+            if dist < params['repl_dist']:
+                force += (12 * lj_A * numpy.power(dist, -13) - lj_B * numpy.power(dist, -7))
+
             unitDist = AtoB / dist
-            derivs[i*2:i*2+2] += (force * unitDist)
-            derivs[j*2:j*2+2] -= (force * unitDist)
+            checknan = numpy.isnan(unitDist)
+            checkinf = numpy.isinf(unitDist)
+            if numpy.isfinite(unitDist).all() and numpy.isfinite(force):
+                derivs[i*2:i*2+2] += (force * unitDist)
+                derivs[j*2:j*2+2] -= (force * unitDist)
         if grid[i].fixed:
             derivs[i*2:i*2+2] = numpy.zeros(2)
         if grid[i].force:
