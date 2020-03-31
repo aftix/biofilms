@@ -55,13 +55,20 @@ solution = scipy.integrate.solve_ivp(
 maxstress: float = 0
 
 avgstress: List[float] = list()
+avgxoffset: List[float] = list()
+avgyoffset: List[float] = list()
+avgdisplacement: List[float] = list()
 
 for ind in range(len(solution.t)):
     newgrid = mygrid
     for i in range(len(mygrid)):
         newgrid[i].pos = solution.y[2*i:2*i+2,ind]
-    compression, tension, avg = simulate.GetStress(newgrid, params)
+    compression, tension, avg = simulate.GetStress(newgrid, solution.t[ind], params)
+    dist, xoff, yoff, avgstrain = simulate.GetStrain(newgrid, params)
     avgstress.append(avg)
+    avgxoffset.append(avgstrain[0])
+    avgyoffset.append(avgstrain[1])
+    avgdisplacement.append(dist)
     if compression > maxstress:
         maxstress = compression
     if -tension > maxstress:
@@ -77,3 +84,4 @@ with open(folder + 'globals', 'w') as out:
     out.write('\n')
 
 graph.plot_avgstress(avgstress, solution.t, name=folder + 'avgstress.png')
+graph.plot_avgstrain(avgxoffset, avgyoffset, avgdisplacement, solution.t, name=folder)

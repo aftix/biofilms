@@ -50,6 +50,8 @@ class Cell(object):
         self.updateFunc: Callable = _CellUpdate
         self.force = False
         self.forceFunc: Callable = _CellUpdate
+        self.initpos = self.pos
+        self.strain = numpy.zeros(2)
 
     def __str__(self) -> str:
         return str(self.__dict__)

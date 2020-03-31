@@ -53,9 +53,10 @@ def StepForce(t, y, grid, params):
     return derivs
 
 """
-Given a grid position, find bulk stress of each cell
+Given a grid position, find stress of each cell
+Returns max compression in this grid, max tension in this grid, average bulk stress in this grid
 """
-def GetStress(grid: List[Cell], params: Dict[str, Union[float, int, str]]) -> Tuple[float, float, float]:
+def GetStress(grid: List[Cell], t: float, params: Dict[str, Union[float, int, str]]) -> Tuple[float, float, float]:
     maxcompression: float = 0
     maxtension: float = 0
     avgstress: float = 0
@@ -95,6 +96,17 @@ def GetStress(grid: List[Cell], params: Dict[str, Union[float, int, str]]) -> Tu
             # neighbor is the same (F changes direction as well as direc)
             grid[i].tensorstress += newstress
             grid[j].tensorstress += newstress
+        # Add in external forces
+        if grid[i].force:
+            extForce = grid[i].forceFunc(t, grid[i].pos, grid, i, params)
+            forceMag: float = numpy.linalg.norm(extForce)
+            if not isclose(forceMag, 0):
+                extDirec = extForce / numpy.linalg.norm(extForce)
+                extDirec *= grid[i].rad
+                extStress = numpy.array([extForce, extForce])
+                extStress *= numpy.transpose(numpy.array([extDirec, extDirec]))
+                grid[i].tensorstress += extStress
+
         # At this point, stress is done calculating
         grid[i].tensorstress *= -0.5
         # bulk stress is the trace of diagonalized tensor stress
@@ -110,3 +122,25 @@ def GetStress(grid: List[Cell], params: Dict[str, Union[float, int, str]]) -> Tu
     avgstress /= len(grid)
     return maxcompression, maxtension, avgstress
 
+"""
+Given a grid position, find the strain on each cell
+Returns max distance displaced, max x offset, max y offset, average strain
+"""
+def GetStrain(grid: List[Cell], params: Dict[str, Union[float, int, str]]) -> Tuple[float, float, float, List[float]]:
+    maxdisplace: float = 0
+    maxxoff: float = 0
+    maxyoff: float = 0
+    avgstrain = numpy.zeros(2)
+
+    for cell in grid:
+        cell.strain = cell.pos - cell.initpos
+        if abs(cell.strain[0]) > maxxoff:
+            maxxoff = abs(cell.strain[0])
+        if abs(cell.strain[1]) > maxyoff:
+            maxyoff = abs(cell.strain[1])
+        avgstrain += cell.strain
+        if numpy.linalg.norm(cell.strain) > maxdisplace:
+            maxdisplace = numpy.linalg.norm(cell.strain)
+
+    avgstrain /= len(grid)
+    return maxdisplace, maxxoff, maxyoff, avgstrain
