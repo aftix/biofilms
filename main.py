@@ -55,6 +55,7 @@ solution = scipy.integrate.solve_ivp(
 maxstress: float = 0
 
 avgstress: List[float] = list()
+avgxstress: List[float] = list()
 avgxoffset: List[float] = list()
 avgyoffset: List[float] = list()
 avgdisplacement: List[float] = list()
@@ -63,11 +64,12 @@ for ind in range(len(solution.t)):
     newgrid = mygrid
     for i in range(len(mygrid)):
         newgrid[i].pos = solution.y[2*i:2*i+2,ind]
-    compression, tension, avg = simulate.GetStress(newgrid, solution.t[ind], params)
+    compression, tension, avg, avgx = simulate.GetStress(newgrid, solution.t[ind], params)
     dist, xoff, yoff, avgstrain = simulate.GetStrain(newgrid, params)
     avgstress.append(avg)
     avgxoffset.append(avgstrain[0])
     avgyoffset.append(avgstrain[1])
+    avgxstress.append(avgx)
     avgdisplacement.append(dist)
     if compression > maxstress:
         maxstress = compression
@@ -85,3 +87,12 @@ with open(folder + 'globals', 'w') as out:
 
 graph.plot_avgstress(avgstress, solution.t, name=folder + 'avgstress.png')
 graph.plot_avgstrain(avgxoffset, avgyoffset, avgdisplacement, solution.t, name=folder)
+
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+ax.plot(avgxstress, avgdisplacement, color='k', marker='.', label='Average x stress', linestyle='None')
+ax.set_xlabel('X stress')
+ax.set_ylabel('Average displacement')
+fig.savefig(folder + 'stressstrainx.png')
+plt.close(fig)

@@ -56,10 +56,11 @@ def StepForce(t, y, grid, params):
 Given a grid position, find stress of each cell
 Returns max compression in this grid, max tension in this grid, average bulk stress in this grid
 """
-def GetStress(grid: List[Cell], t: float, params: Dict[str, Union[float, int, str]]) -> Tuple[float, float, float]:
+def GetStress(grid: List[Cell], t: float, params: Dict[str, Union[float, int, str]]) -> Tuple[float, float, float, float]:
     maxcompression: float = 0
     maxtension: float = 0
     avgstress: float = 0
+    avgxstress: float = 0
 
     for i, cell in enumerate(grid):
         cell.stress = 0
@@ -119,8 +120,10 @@ def GetStress(grid: List[Cell], t: float, params: Dict[str, Union[float, int, st
         elif grid[i].stress < maxtension:
             maxtension = grid[i].stress
         avgstress += grid[i].stress
+        avgxstress += grid[i].tensorstress[0,0]
     avgstress /= len(grid)
-    return maxcompression, maxtension, avgstress
+    avgxstress /= len(grid)
+    return maxcompression, maxtension, avgstress, avgxstress
 
 """
 Given a grid position, find the strain on each cell
