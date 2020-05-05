@@ -36,13 +36,24 @@ def SideWobble(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
         if j == nrows - 1:
             grid[-1].fixed = True
 
+def DoubleSideWobble(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
+    if j == 0:
+        grid[-1].force = True
+        grid[-1].forceFunc = forces.SineConstrained
+    elif j == nrows - 1:
+        grid[-1].force = True
+        grid[-1].forceFunc = forces.NegSineConstrained
+    else:
+        grid[-1].force = True
+        grid[-1].forceFunc = forces.LinRestraint
+
 def Constrain(i: int, j: int, nrows: int, grid: List[Cell]) -> None:
     grid[-1].force = True
     grid[-1].forceFunc = forces.LinRestraint
 
 
 params = BeginParams()
-mygrid = generation.generate_offsetgrid(params, nrows=10, size=0.008, majhook=SideWobble, minhook=Constrain)
+mygrid = generation.generate_offsetgrid(params, nrows=10, size=0.008, majhook=DoubleSideWobble, minhook=Constrain)
 
 with open(name, "w") as f:
     global sim_params

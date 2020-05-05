@@ -70,7 +70,7 @@ for ind in range(len(solution.t)):
     avgxoffset.append(avgstrain[0])
     avgyoffset.append(avgstrain[1])
     avgxstress.append(avgx)
-    avgdisplacement.append(dist)
+    avgdisplacement.append(avgstrain[0])
     if compression > maxstress:
         maxstress = compression
     if -tension > maxstress:
@@ -91,7 +91,7 @@ graph.plot_avgstrain(avgxoffset, avgyoffset, avgdisplacement, solution.t, name=f
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
-ax.plot(avgxstress, avgdisplacement, color='k', marker='.', label='Average x stress', linestyle='None')
+ax.scatter(avgxstress, avgdisplacement, c=solution.t, marker='.')
 ax.set_xlabel('X stress')
 ax.set_ylabel('Average displacement')
 fig.savefig(folder + 'stressstrainx.png')

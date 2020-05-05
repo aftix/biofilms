@@ -12,3 +12,8 @@ def SineConstrained(t, y, grid, i, params):
     constraint = LinRestraint(t, y, grid, i, params)
     force = params['sineamp'] * numpy.sin(params['sineomega'] * t)
     return numpy.array([force + constraint[0], constraint[1]])
+
+def NegSineConstrained(t, y, grid, i, params):
+    constraint = LinRestraint(t, y, grid, i, params)
+    force = -params['sineamp'] * numpy.sin(params['sineomega'] * t)
+    return numpy.array([force + constraint[0], constraint[1]])
